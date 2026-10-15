@@ -1,16 +1,20 @@
 {
   "name": "hotelumo",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": false,
   "description": "Hotelumo CLI — manage the reservations, guests, rooms and rates of your hotels from the terminal",
   "license": "Apache-2.0",
   "repository": "github:hotelumo/cli",
   "homepage": "https://www.hotelumo.com/",
   "author": "Hotelumo",
-  "type": "commonjs",
+  "type": "module",
+  "exports": {
+    ".": "./dist/index.js",
+    "./package.json": "./package.json"
+  },
   "main": "./dist/index.js",
   "bin": {
-    "hotelumo": "./dist/index.js"
+    "hotelumo": "./bin/hotelumo.js"
   },
   "engines": {
     "node": ">=18.0.0"
@@ -20,9 +24,12 @@
     "develop": "node index.js",
     "prepublishOnly": "npm run build",
     "publish:npm": "npm publish --access public",
-    "publish:repo": "node scripts/publishCli.mjs"
+    "publish:repo": "node scripts/publishCli.mjs",
+    "test": "vitest run",
+    "test:smoke": "npm run build && node scripts/smoke.js"
   },
   "files": [
+    "bin",
     "dist",
     "skills"
   ],
@@ -42,7 +49,8 @@
   },
   "devDependencies": {
     "@monorepool/agentfirst": "0.0.0",
+    "@monorepool/root": "0.0.0",
     "esbuild": "0.25.4",
-    "eslint": "10.8.0"
+    "vitest": "catalog:"
   }
 }

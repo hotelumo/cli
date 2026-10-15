@@ -1,13 +1,11 @@
 /* Copyright 2025 Hotelumo LLC */
-const commander = require('commander')
-const {
-  printJson,
-  withJson,
-  fail,
-} = require('@monorepool/agentfirst/output.js')
-const buildQuery = require('./buildQuery.js')
-const parseBody = require('./parseBody.js')
-const api = require('./request.js')
+
+import { fail, printJson, withJson } from '@monorepool/agentfirst/output.js'
+import * as commander from 'commander'
+
+import buildQuery from './buildQuery.js'
+import parseBody from './parseBody.js'
+import api from './request.js'
 
 // Daily rates — the per-day price/availability grid (the ARI surface a
 // channel manager pushes). Scope `rates` (hotelumo/api/handlers/scopes.js).
@@ -236,4 +234,4 @@ function dailyRatesCommand() {
   return command
 }
 
-module.exports = dailyRatesCommand
+export default dailyRatesCommand

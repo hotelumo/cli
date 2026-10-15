@@ -1,8 +1,11 @@
 /* Copyright 2025 Hotelumo LLC */
-const loginCommand = require('@monorepool/agentfirst/loginCommand.js')
-const api = require('./request.js')
-const session = require('./session.js')
-const { binaryName, appUrl, envKeyName } = require('./constants.js')
+import loginCommand from '@monorepool/agentfirst/loginCommand.js'
+
+import { appUrl, binaryName, envKeyName } from './constants.js'
+import getApiUrl from './getApiUrl.js'
+import packageJson from './package.json' with { type: 'json' }
+import api from './request.js'
+import session from './session.js'
 
 // Verifies a pasted key with the cheapest read the API offers to a key.
 // GET /api/roomTypes needs no parameters and only rooms:read, which every
@@ -30,10 +33,20 @@ async function verify() {
   }
 }
 
-// `hotelumo login` — dual-mode via the shared factory: `--browser` opens
+// `hotelumo login` via the shared factory: `--browser` opens
 // app.hotelumo.com/cli (the page hotelumo/app/pages/CliPage.jsx serves) and
-// stores a token session; `--with-key` prompts (masked) for an API key
-// secret. Headless with no flags it fails fast with instructions instead of
-// hanging on a prompt or opening a browser.
-module.exports = () =>
-  loginCommand({ binaryName, appUrl, session, verify, envKeyName })
+// stores a token session; `--device` prints a link, a QR code and a one-time
+// code to approve on app.hotelumo.com/cli from a phone or another computer, for
+// a terminal whose browser cannot be used; `--with-key` prompts (masked) for an
+// API key secret. Headless with no flags it fails fast with instructions
+// instead of hanging on a prompt or opening a browser.
+export default () =>
+  loginCommand({
+    binaryName,
+    appUrl,
+    getApiUrl,
+    version: packageJson.version,
+    session,
+    verify,
+    envKeyName,
+  })

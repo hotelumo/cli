@@ -1,15 +1,13 @@
 /* Copyright 2025 Hotelumo LLC */
-const commander = require('commander')
-const {
-  printJson,
-  withJson,
-  fail,
-} = require('@monorepool/agentfirst/output.js')
-const buildQuery = require('./buildQuery.js')
-const parseBody = require('./parseBody.js')
-const api = require('./request.js')
-const resolveHotelId = require('./resolveHotelId.js')
-const { dim, bold, cyan } = require('./formatOutput.js')
+
+import { fail, printJson, withJson } from '@monorepool/agentfirst/output.js'
+import * as commander from 'commander'
+
+import buildQuery from './buildQuery.js'
+import { bold, cyan, dim } from './formatOutput.js'
+import parseBody from './parseBody.js'
+import api from './request.js'
+import resolveHotelId from './resolveHotelId.js'
 
 // Reservations — the booking record, with its rooms. Scopes:
 // reservations:read for list/get/read, reservations:write for
@@ -233,20 +231,17 @@ function reservationsCommand() {
       const hotelId = await resolveHotelId(options, body, () =>
         api.get(`/api/reservations/${reservationId}`),
       )
-      const reservation = await api.put(
-        `/api/reservations/${reservationId}`,
-        {
-          ...body,
-          _id: reservationId,
-          ...(hotelId && { hotelId }),
-          ...(options.guestId && { guestId: options.guestId }),
-          ...(options.guestName && { guestName: options.guestName }),
-          ...(options.checkInDate && { checkInDate: options.checkInDate }),
-          ...(options.checkOutDate && { checkOutDate: options.checkOutDate }),
-          ...(options.status && { status: options.status }),
-          ...(options.note && { note: options.note }),
-        },
-      )
+      const reservation = await api.put(`/api/reservations/${reservationId}`, {
+        ...body,
+        _id: reservationId,
+        ...(hotelId && { hotelId }),
+        ...(options.guestId && { guestId: options.guestId }),
+        ...(options.guestName && { guestName: options.guestName }),
+        ...(options.checkInDate && { checkInDate: options.checkInDate }),
+        ...(options.checkOutDate && { checkOutDate: options.checkOutDate }),
+        ...(options.status && { status: options.status }),
+        ...(options.note && { note: options.note }),
+      })
       if (options.json) {
         printJson({ ok: true, id: reservation._id })
         return
@@ -306,4 +301,4 @@ function reservationsCommand() {
   return command
 }
 
-module.exports = reservationsCommand
+export default reservationsCommand

@@ -5,6 +5,6 @@
 // Deliberately a three-line local module rather than `@hotelumo/client`: the
 // client pulls in @monorepool/env, which carries the internal product roster,
 // and none of that belongs in a published npm bundle.
-module.exports = function getApiUrl() {
+export default function getApiUrl() {
   return process.env.HOTELUMO_API_URL || 'https://api.hotelumo.com'
 }

@@ -1,13 +1,11 @@
 /* Copyright 2025 Hotelumo LLC */
-const commander = require('commander')
-const {
-  printJson,
-  withJson,
-  fail,
-} = require('@monorepool/agentfirst/output.js')
-const buildQuery = require('./buildQuery.js')
-const parseBody = require('./parseBody.js')
-const api = require('./request.js')
+
+import { fail, printJson, withJson } from '@monorepool/agentfirst/output.js'
+import * as commander from 'commander'
+
+import buildQuery from './buildQuery.js'
+import parseBody from './parseBody.js'
+import api from './request.js'
 
 // API keys — the credential every other command can authenticate with.
 //
@@ -40,9 +38,7 @@ function keysCommand() {
   withJson(
     command
       .command('list')
-      .description(
-        'list API keys without their secrets (GET /api/keys)',
-      )
+      .description('list API keys without their secrets (GET /api/keys)')
       .option('--hotelId <hotelId>', 'only keys pinned to this hotel')
       .option('-n, --limit <limit>', 'max results')
       .option('--skip <skip>', 'skip the first N results')
@@ -167,4 +163,4 @@ function keysCommand() {
   return command
 }
 
-module.exports = keysCommand
+export default keysCommand

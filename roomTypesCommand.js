@@ -1,15 +1,13 @@
 /* Copyright 2025 Hotelumo LLC */
-const commander = require('commander')
-const {
-  printJson,
-  withJson,
-  fail,
-} = require('@monorepool/agentfirst/output.js')
-const buildQuery = require('./buildQuery.js')
-const parseBody = require('./parseBody.js')
-const api = require('./request.js')
-const resolveHotelId = require('./resolveHotelId.js')
-const { dim, bold, cyan } = require('./formatOutput.js')
+
+import { fail, printJson, withJson } from '@monorepool/agentfirst/output.js'
+import * as commander from 'commander'
+
+import buildQuery from './buildQuery.js'
+import { bold, cyan, dim } from './formatOutput.js'
+import parseBody from './parseBody.js'
+import api from './request.js'
+import resolveHotelId from './resolveHotelId.js'
 
 // Room types — the sellable categories rooms belong to. They share the
 // `rooms` scope with physical rooms (hotelumo/api/handlers/scopes.js).
@@ -231,4 +229,4 @@ function roomTypesCommand() {
   return command
 }
 
-module.exports = roomTypesCommand
+export default roomTypesCommand

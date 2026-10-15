@@ -18,7 +18,7 @@ Requires Node.js 18 or newer.
 ## Quick start
 
 ```bash
-hotelumo login                                   # choose browser or API key login
+hotelumo login                                   # choose browser, another device or API key login
 hotelumo hotels list                             # the hotels of your organization
 hotelumo reservations list --stayDateFrom 2026-08-01 --stayDateTo 2026-08-31
 hotelumo availability check <hotelId> --checkInDate 2026-08-10 \
@@ -43,12 +43,18 @@ hotelumo signup --email founder@example.com --json
 
 ## Authentication
 
-Two ways in, both stored in `~/.hotelumo/`:
+Three ways in, all stored in `~/.hotelumo/`:
 
 - **Browser** — `hotelumo login --browser` opens
   [app.hotelumo.com](https://app.hotelumo.com) in your browser to log in with
   your Hotelumo account, then stores a token session. Tokens are refreshed
   automatically; requests carry `Authorization: Token base64(<jwt>)`.
+- **Another device** — `hotelumo login --device` is for a terminal whose browser
+  you cannot use: a remote desktop without copy and paste, an SSH session, a
+  server. It prints a link, a QR code and a one-time code: open the link on your
+  phone or on any computer where you are signed in to Hotelumo, check that the
+  code matches and approve. The terminal then stores a session of its own, as
+  `--browser` does. The code works once and expires after ten minutes.
 - **API key** — `hotelumo login --with-key` prompts for an API key secret
   with a masked input. An administrator of your organization creates the key
   in the Hotelumo dashboard, under the hotel's **API keys** settings — or
@@ -126,8 +132,9 @@ hotelumo reservations list --json -n 100 \
 
 ```bash
 hotelumo signup --email founder@example.com  # create an account and log in
-hotelumo login                # interactive: choose browser or API key login
+hotelumo login                # interactive: browser, another device or API key
 hotelumo login --browser      # log in through app.hotelumo.com
+hotelumo login --device       # approve the login from a phone or another computer
 hotelumo login --with-key     # prompt for an API key secret (masked)
 hotelumo logout               # clear everything stored in ~/.hotelumo/
 ```

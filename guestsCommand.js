@@ -1,15 +1,13 @@
 /* Copyright 2025 Hotelumo LLC */
-const commander = require('commander')
-const {
-  printJson,
-  withJson,
-  fail,
-} = require('@monorepool/agentfirst/output.js')
-const buildQuery = require('./buildQuery.js')
-const parseBody = require('./parseBody.js')
-const api = require('./request.js')
-const resolveHotelId = require('./resolveHotelId.js')
-const { dim, bold, cyan } = require('./formatOutput.js')
+
+import { fail, printJson, withJson } from '@monorepool/agentfirst/output.js'
+import * as commander from 'commander'
+
+import buildQuery from './buildQuery.js'
+import { bold, cyan, dim } from './formatOutput.js'
+import parseBody from './parseBody.js'
+import api from './request.js'
+import resolveHotelId from './resolveHotelId.js'
 
 // Guests — the CRM directory. guests:read for list/get/read, guests:write
 // for add/update/delete (hotelumo/api/handlers/guestsHandler.js).
@@ -230,4 +228,4 @@ function guestsCommand() {
   return command
 }
 
-module.exports = guestsCommand
+export default guestsCommand

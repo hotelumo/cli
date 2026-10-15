@@ -1,13 +1,11 @@
 /* Copyright 2025 Hotelumo LLC */
-const commander = require('commander')
-const {
-  printJson,
-  withJson,
-  fail,
-} = require('@monorepool/agentfirst/output.js')
-const buildQuery = require('./buildQuery.js')
-const parseBody = require('./parseBody.js')
-const api = require('./request.js')
+
+import { fail, printJson, withJson } from '@monorepool/agentfirst/output.js'
+import * as commander from 'commander'
+
+import buildQuery from './buildQuery.js'
+import parseBody from './parseBody.js'
+import api from './request.js'
 
 // The booking-engine pair: what is bookable for a stay, and the request that
 // books it. `check` needs rates:read, `book` needs reservations:write
@@ -60,9 +58,7 @@ function availabilityCommand() {
         return
       }
 
-      console.log(
-        `${availability.nights} night(s), ${offers.length} offer(s):`,
-      )
+      console.log(`${availability.nights} night(s), ${offers.length} offer(s):`)
       offers.forEach((offer, index) => {
         console.log(
           `${index + 1}. ${offer.roomType?.name || offer.roomType?._id}` +
@@ -158,4 +154,4 @@ function availabilityCommand() {
   return command
 }
 
-module.exports = availabilityCommand
+export default availabilityCommand

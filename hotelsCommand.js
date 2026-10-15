@@ -1,13 +1,11 @@
 /* Copyright 2025 Hotelumo LLC */
-const commander = require('commander')
-const {
-  printJson,
-  withJson,
-  fail,
-} = require('@monorepool/agentfirst/output.js')
-const buildQuery = require('./buildQuery.js')
-const api = require('./request.js')
-const { dim, bold, cyan } = require('./formatOutput.js')
+
+import { fail, printJson, withJson } from '@monorepool/agentfirst/output.js'
+import * as commander from 'commander'
+
+import buildQuery from './buildQuery.js'
+import { bold, cyan, dim } from './formatOutput.js'
+import api from './request.js'
 
 // Hotels are read-only here on purpose. A hotel is the per-tenant container
 // created at signup and edited in the dashboard, so there is no `hotels`
@@ -123,4 +121,4 @@ function hotelsCommand() {
   return command
 }
 
-module.exports = hotelsCommand
+export default hotelsCommand

@@ -1,13 +1,11 @@
 /* Copyright 2025 Hotelumo LLC */
-const commander = require('commander')
-const {
-  printJson,
-  withJson,
-  fail,
-} = require('@monorepool/agentfirst/output.js')
-const parseBody = require('./parseBody.js')
-const api = require('./request.js')
-const { dim, bold, cyan } = require('./formatOutput.js')
+
+import { fail, printJson, withJson } from '@monorepool/agentfirst/output.js'
+import * as commander from 'commander'
+
+import { bold, cyan, dim } from './formatOutput.js'
+import parseBody from './parseBody.js'
+import api from './request.js'
 
 // Webhook subscriptions deliver reservation.* and guest.* events to your
 // server as signed POSTs.
@@ -85,7 +83,9 @@ function webhooksCommand() {
       console.log(bold(subscription.url || subscription._id))
       console.log(dim(subscription._id))
       console.log()
-      console.log(`${cyan('events')}  ${(subscription.events || []).join(', ')}`)
+      console.log(
+        `${cyan('events')}  ${(subscription.events || []).join(', ')}`,
+      )
       console.log(`${cyan('active')}  ${subscription.active !== false}`)
       if (subscription.hotelId) {
         console.log(`${cyan('hotelId')}  ${subscription.hotelId}`)
@@ -224,4 +224,4 @@ function webhooksCommand() {
   return command
 }
 
-module.exports = webhooksCommand
+export default webhooksCommand

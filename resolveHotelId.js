@@ -10,7 +10,7 @@
 // an organization-wide key or a browser session must send it. On update,
 // when the caller passed no --hotelId, reuse the hotelId of the existing
 // record — one extra read, which needs the matching `:read` scope.
-module.exports = async function resolveHotelId(options, body, getExisting) {
+export default async function resolveHotelId(options, body, getExisting) {
   let hotelId = options.hotelId || body.hotelId
 
   if (!hotelId) {

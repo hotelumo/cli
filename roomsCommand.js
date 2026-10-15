@@ -1,15 +1,13 @@
 /* Copyright 2025 Hotelumo LLC */
-const commander = require('commander')
-const {
-  printJson,
-  withJson,
-  fail,
-} = require('@monorepool/agentfirst/output.js')
-const buildQuery = require('./buildQuery.js')
-const parseBody = require('./parseBody.js')
-const api = require('./request.js')
-const resolveHotelId = require('./resolveHotelId.js')
-const { dim, bold, cyan } = require('./formatOutput.js')
+
+import { fail, printJson, withJson } from '@monorepool/agentfirst/output.js'
+import * as commander from 'commander'
+
+import buildQuery from './buildQuery.js'
+import { bold, cyan, dim } from './formatOutput.js'
+import parseBody from './parseBody.js'
+import api from './request.js'
+import resolveHotelId from './resolveHotelId.js'
 
 // Rooms — the physical inventory. The `rooms` scope covers rooms AND room
 // types (hotelumo/api/handlers/scopes.js), so both commands read and write
@@ -175,10 +173,7 @@ function roomsCommand() {
       .option('--roomTypeId <roomTypeId>', 'room type of this room')
       .option('--number <number>', 'room number or label, e.g. 101')
       .option('--floor <floor>', 'floor the room is on')
-      .option(
-        '--status <status>',
-        'AVAILABLE, OUT_OF_ORDER or OUT_OF_SERVICE',
-      )
+      .option('--status <status>', 'AVAILABLE, OUT_OF_ORDER or OUT_OF_SERVICE')
       .option('--housekeepingStatus <status>', 'CLEAN, DIRTY or INSPECTED')
       .option(
         '--body <json>',
@@ -240,4 +235,4 @@ function roomsCommand() {
   return command
 }
 
-module.exports = roomsCommand
+export default roomsCommand

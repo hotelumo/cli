@@ -17,6 +17,7 @@ import logoutCommand from './logoutCommand.js'
 import packageJson from './package.json' with { type: 'json' }
 import ratePlansCommand from './ratePlansCommand.js'
 import reservationsCommand from './reservationsCommand.js'
+import roomBlocksCommand from './roomBlocksCommand.js'
 import roomsCommand from './roomsCommand.js'
 import roomTypesCommand from './roomTypesCommand.js'
 import schemaCommand from './schemaCommand.js'
@@ -47,6 +48,7 @@ program
   .addCommand(reservationsCommand())
   .addCommand(guestsCommand())
   .addCommand(roomsCommand())
+  .addCommand(roomBlocksCommand())
   .addCommand(roomTypesCommand())
   .addCommand(ratePlansCommand())
   .addCommand(dailyRatesCommand())

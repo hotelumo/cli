@@ -1,10 +1,10 @@
 # hotelumo
 
 Command-line access to your [Hotelumo](https://www.hotelumo.com/) data on
-[app.hotelumo.com](https://app.hotelumo.com): reservations and guests, rooms
-and room types, rate plans and per-day prices, live availability and booking
-requests — the same records the dashboard shows, through the Hotelumo REST
-API at `https://api.hotelumo.com`.
+[app.hotelumo.com](https://app.hotelumo.com): reservations and guests, rooms,
+room types and room blocks, rate plans and per-day prices, live availability
+and booking requests — the same records the dashboard shows, through the
+Hotelumo REST API at `https://api.hotelumo.com`.
 
 ## Install
 
@@ -90,9 +90,10 @@ Each API key carries per-resource scopes: `reservations:read`,
 `reservations:write`, `guests:read`, `guests:write`, `rooms:read`,
 `rooms:write`, `rates:read` and `rates:write`. New keys start with the four
 `:read` scopes; an administrator widens them in the dashboard. `rooms` covers
-rooms **and** room types; `rates` covers rate plans, daily rates **and** the
-availability query. A command hitting a scope the key lacks fails with `403`.
-Requests are rate limited per key; going over the limit returns `429`.
+rooms, room types **and** room blocks; `rates` covers rate plans, daily rates
+**and** the availability query. A command hitting a scope the key lacks fails
+with `403`. Requests are rate limited per key; going over the limit returns
+`429`.
 
 Three surfaces answer **only** to an operator session and return `401` to an
 API key, because they expose credentials: `hotelumo hotels list`,
@@ -205,7 +206,10 @@ hotelumo rooms read <roomId>
 hotelumo rooms add --hotelId <hotelId> --roomTypeId <roomTypeId> \
   --number 101 --floor 1
 hotelumo rooms update <roomId> --housekeepingStatus DIRTY
-hotelumo rooms delete <roomId...>
+hotelumo rooms add --hotelId <hotelId> --roomTypeId <roomTypeId> \
+  --number 1+2 --componentRoomIds <roomId1>,<roomId2>   # a combined room
+hotelumo rooms update <roomId> --componentRoomIds ""    # ordinary again
+hotelumo rooms delete <roomId...>                # also deletes its room blocks
 
 hotelumo room-types list --hotelId <hotelId>
 hotelumo room-types get <roomTypeId>
@@ -218,6 +222,49 @@ hotelumo room-types delete <roomTypeId...>       # also deletes its rate plans
 Room `--status` accepts `AVAILABLE`, `OUT_OF_ORDER` and `OUT_OF_SERVICE`;
 `--housekeepingStatus` accepts `CLEAN`, `DIRTY` and `INSPECTED`. Prices live
 on rate plans, not on room types.
+
+A **combined room** is sold as one unit made of other rooms, such as
+apartments 1 and 2 also let together as "1+2". `--componentRoomIds` takes the
+comma-separated ids of its parts: at least two rooms of the same hotel, none
+of them combined itself, each part of at most one combined room, and the
+combined room needs a room type of its own, apart from every part's; anything
+else is refused with `400`. Booking or blocking either side takes the other
+out of sale for those nights, so linking rooms that already hold the same
+night as the combined room is refused with `409`, and so is deleting a part
+before the combined room lets it go. `--componentRoomIds ""` sends an empty
+list, which makes it an ordinary room again. `list` and `read` show what a
+combined room is made of.
+
+### Room blocks
+
+```bash
+hotelumo room-blocks list --hotelId <hotelId> --from 2026-08-01 --to 2026-09-01
+hotelumo room-blocks list --roomId <roomId>      # --json
+hotelumo room-blocks get <roomBlockId>           # raw JSON
+hotelumo room-blocks read <roomBlockId>          # formatted view
+hotelumo room-blocks add --roomId <roomId> --startDate 2026-08-10 \
+  --endDate 2026-08-12 --type OUT_OF_ORDER --note "Leaking shower"
+hotelumo room-blocks update <roomBlockId> --endDate 2026-08-14
+hotelumo room-blocks delete <roomBlockId...>     # puts the nights back on sale
+```
+
+A room block takes one room out of sale for a run of nights: on the booking
+page, in availability and on the connected channels. Its dates are nights,
+like a stay's: `--startDate` is the first blocked night and `--endDate` the
+first night the room is free again (exclusive, like a check-out), so
+`2026-08-10` to `2026-08-12` blocks two nights. A block lasts at most 366
+nights; a room gone for good takes `rooms update --status OUT_OF_ORDER`
+instead. `--type` accepts `OUT_OF_ORDER` (the default), `OUT_OF_SERVICE`,
+`PRIVATE_USE` and `OTHER`, a label only: every type closes the room the same
+way. `--note` takes up to 2000 characters.
+
+`list` returns blocks earliest first; `--from` (inclusive) and `--to`
+(exclusive) keep the blocks with a night in that window. A block always takes
+its room's hotel, so `add` and `update` need no `--hotelId`, and one that
+names another hotel is refused. `update` sends only the fields you pass, and
+`--note ""` clears the note. A block sharing a night with a reservation in the
+room, or with another block of it, is refused with `409`: move the
+reservation to another room first.
 
 ### Rate plans and daily rates
 
@@ -303,7 +350,8 @@ hotelumo skills get hotelumo   # print a bundled SKILL.md to stdout
 - Every create/update needs a `hotelId`. Pass `--hotelId`, or use a key
   pinned to one hotel, which supplies it implicitly. On `update`, when
   neither is given, the CLI reads the record first and reuses its `hotelId` —
-  that path needs the matching `:read` scope too.
+  that path needs the matching `:read` scope too. Room blocks are the
+  exception: a block takes its room's hotel.
 - `update` sends only the fields you pass (plus `--body` JSON); the API
   merges them into the stored record.
 - Creates and updates fire the corresponding webhooks
@@ -313,7 +361,8 @@ hotelumo skills get hotelumo   # print a bundled SKILL.md to stdout
   wrong price reaches the OTAs.
 - Deletes are permanent and accept multiple ids
   (`hotelumo guests delete <id1> <id2>`). Deleting a room type also deletes
-  its rate plans and their daily rates.
+  its rate plans and their daily rates; deleting a room also deletes its room
+  blocks.
 
 ## Configuration
 
@@ -347,7 +396,7 @@ Or paste this into your `AGENTS.md` / `CLAUDE.md`:
 ## Hotelumo
 
 Use the `hotelumo` CLI for Hotelumo data: hotels, reservations, guests,
-rooms, room types, rate plans, daily rates and availability. Run
+rooms, room types, room blocks, rate plans, daily rates and availability. Run
 `npx hotelumo skills get hotelumo` for the full guide, `hotelumo schema` for
 the command tree as JSON, and `hotelumo --help` for the command reference.
 Log in once with `hotelumo login` (browser or API key), or export

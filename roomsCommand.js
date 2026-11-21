@@ -9,9 +9,27 @@ import parseBody from './parseBody.js'
 import api from './request.js'
 import resolveHotelId from './resolveHotelId.js'
 
-// Rooms — the physical inventory. The `rooms` scope covers rooms AND room
-// types (hotelumo/api/handlers/scopes.js), so both commands read and write
-// under rooms:read / rooms:write.
+// Rooms — the physical inventory. The `rooms` scope covers rooms, room types
+// AND room blocks (hotelumo/api/handlers/scopes.js), so all three commands
+// read and write under rooms:read / rooms:write.
+//
+// A combined room is sold as one unit made of other rooms ("1+2" made of
+// rooms 1 and 2): it lists its parts in `componentRoomIds`, and the parts
+// carry nothing. The API owns the rules (@hotelumo/shared/roomLinks.js).
+
+// --componentRoomIds "a, b" → ['a', 'b']. An empty value gives [], which
+// turns a combined room back into an ordinary one, so it is sent too.
+const parseRoomIds = value =>
+  value
+    .split(',')
+    .map(roomId => roomId.trim())
+    .filter(Boolean)
+
+const describeComponentRoomIds = room =>
+  Array.isArray(room.componentRoomIds) && room.componentRoomIds.length > 0
+    ? room.componentRoomIds.join(', ')
+    : null
+
 function roomsCommand() {
   const command = new commander.Command('rooms')
   command.description(
@@ -55,7 +73,12 @@ function roomsCommand() {
 
       console.log(`Found ${rooms.length} room(s):`)
       rooms.forEach((room, index) => {
-        const state = [room.status, room.housekeepingStatus]
+        const componentRoomIds = describeComponentRoomIds(room)
+        const state = [
+          room.status,
+          room.housekeepingStatus,
+          componentRoomIds && `combined from ${componentRoomIds}`,
+        ]
           .filter(Boolean)
           .join(' · ')
         console.log(
@@ -107,6 +130,10 @@ function roomsCommand() {
       if (room.roomTypeId) {
         console.log(`${cyan('roomTypeId')}  ${room.roomTypeId}`)
       }
+      const componentRoomIds = describeComponentRoomIds(room)
+      if (componentRoomIds) {
+        console.log(`${cyan('combined from')}  ${componentRoomIds}`)
+      }
       if (room.floor) console.log(`${cyan('floor')}  ${room.floor}`)
       if (room.hotelId) console.log(`${cyan('hotelId')}  ${room.hotelId}`)
       if (room.creationTime) {
@@ -135,6 +162,10 @@ function roomsCommand() {
         'CLEAN, DIRTY or INSPECTED (default CLEAN)',
       )
       .option(
+        '--componentRoomIds <roomIds>',
+        'comma-separated ids of the rooms this room is made of, which makes it a combined room (e.g. "1+2" made of rooms 1 and 2): two or more rooms of the same hotel, of other room types',
+      )
+      .option(
         '--body <json>',
         'extra JSON fields merged into the request body',
       ),
@@ -150,6 +181,9 @@ function roomsCommand() {
         ...(options.status && { status: options.status }),
         ...(options.housekeepingStatus && {
           housekeepingStatus: options.housekeepingStatus,
+        }),
+        ...(options.componentRoomIds !== undefined && {
+          componentRoomIds: parseRoomIds(options.componentRoomIds),
         }),
       })
       if (options.json) {
@@ -176,6 +210,10 @@ function roomsCommand() {
       .option('--status <status>', 'AVAILABLE, OUT_OF_ORDER or OUT_OF_SERVICE')
       .option('--housekeepingStatus <status>', 'CLEAN, DIRTY or INSPECTED')
       .option(
+        '--componentRoomIds <roomIds>',
+        'comma-separated ids of the rooms this room is made of, which makes it a combined room; "" makes it an ordinary room again',
+      )
+      .option(
         '--body <json>',
         'extra JSON fields merged into the request body',
       ),
@@ -195,6 +233,9 @@ function roomsCommand() {
         ...(options.status && { status: options.status }),
         ...(options.housekeepingStatus && {
           housekeepingStatus: options.housekeepingStatus,
+        }),
+        ...(options.componentRoomIds !== undefined && {
+          componentRoomIds: parseRoomIds(options.componentRoomIds),
         }),
       })
       if (options.json) {
